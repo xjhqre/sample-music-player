@@ -1,43 +1,73 @@
-// Modules to control application life and create native browser window
-const { app, BrowserWindow } = require('electron')
+const { log } = require('console')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
 
-function createWindow () {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+class MyWindow extends BrowserWindow {
+  // config：自定义的BrowserWindow配置
+  // filePath：加载的html文件地址
+  constructor(config, filePath) {
+    const basicConfig = {
+      width: 800,
+      height: 600,
+      show: false, // 不自动显示
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation:false
+      }
     }
-  })
-
-  // and load the index.html of the app.
-  mainWindow.loadFile('index.html')
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+    // 合并两个 config，若有相同配置则后覆盖前
+    const finalConfig = {...basicConfig, ...config}
+    super(finalConfig)
+    this.loadFile(filePath)
+    // 当页面准备就绪在显示，once：只会执行一次
+    this.once('ready-to-show', () => {
+      this.show()
+    })
+  }
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
+function createWindow () {
+  // 创建主窗口
+  const mainWindow = new MyWindow({
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+    }
+  }, 'renderer/index.html')
+  
+  // 监听打开添加音乐按钮消息，创建一个添加音乐窗口
+  ipcMain.on('open-add-music-window-message', () => {
+    const addWindow = new MyWindow({
+      parent: mainWindow
+    }, './renderer/add.html')
+  })
+
+  // 监听选择音乐按钮发送的消息，打开文件选择对话框
+  ipcMain.on('open-file-select-dialog-message', (event) => {
+    // 打开选择文件对话框，具体查看Electron官方文档api
+     dialog.showOpenDialog({
+      // openFile：允许选择文件
+      // multiSelections：允许多选
+      properties: ['openFile', 'multiSelections'],
+      // 过滤音乐文件
+      filters: [{ name: 'Music', extensions: ['wav', 'mp3', 'wma', 'flac'] }]
+     }).then(result => {
+      // 返回选中的文件路径
+      event.sender.send('selected-music-path', result.filePaths)
+    }).catch(err => {
+      console.log(err)
+    })
+  })
+}
+
 app.whenReady().then(() => {
   createWindow()
 
   app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+
 })
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
 })
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.

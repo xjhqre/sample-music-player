@@ -21,7 +21,7 @@ To clone and run this repository you'll need [Git](https://git-scm.com) and [Nod
 # Clone this repository
 git clone https://github.com/electron/electron-quick-start
 # Go into the repository
-cd electron-quick-start
+cd sample-music-player
 # Install dependencies
 npm install
 # Run the app
@@ -34,7 +34,3 @@ Note: If you're using Linux Bash for Windows, [see this guide](https://www.howto
 
 - [electronjs.org/docs](https://electronjs.org/docs) - all of Electron's documentation
 - [Electron Fiddle](https://electronjs.org/fiddle) - Electron Fiddle, an app to test small Electron experiments
-
-## License
-
-[CC0 1.0 (Public Domain)](LICENSE.md)
