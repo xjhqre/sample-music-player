@@ -8,7 +8,9 @@ document.querySelector('#select-music').addEventListener('click', () => {
 })
 
 // 监听主进程选择的音乐文件路径
+let musicFilePathList = []
 ipcRenderer.on('selected-music-path', (event, filePathList) => {
+    musicFilePathList = filePathList
     const musicList = document.querySelector('#musicList')
     // html初始值为‘’，将每次拼接的值加到html末尾，最后返回
     const musicItemsHTML = filePathList.reduce((html, filePath) => {
@@ -18,6 +20,7 @@ ipcRenderer.on('selected-music-path', (event, filePathList) => {
     musicList.innerHTML = `<ul class="list-group">${musicItemsHTML}</ul>`
 })
 
-// 点击导入音乐按钮事件
+// 点击导入音乐按钮事件，向主进程发送保存音乐数据的消息
 document.querySelector('#import-music').addEventListener('click', () => {
+    ipcRenderer.send('import-music-message', musicFilePathList)
 })
