@@ -1,5 +1,4 @@
 const {app, BrowserWindow, ipcMain, dialog} = require('electron')
-const path = require('path')
 const MusicDataStore = require('./renderer/musicDataStore')
 const MyWindow = require('./myWindow')
 
@@ -10,11 +9,7 @@ const musicDataStore = new MusicDataStore({
 
 function createWindow() {
     // 创建主窗口
-    const mainWindow = new MyWindow({
-        webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
-        }
-    }, 'renderer/index.html')
+    const mainWindow = new MyWindow({}, 'renderer/index.html')
 
     // 初始化加载音乐列表
     mainWindow.webContents.on('did-finish-load', () => {
@@ -22,13 +17,18 @@ function createWindow() {
     })
 
     // 监听打开添加音乐按钮消息，创建一个添加音乐窗口
+    let addWindow = null
     ipcMain.on('open-add-music-window-message', () => {
-        const addWindow = new MyWindow({
+        addWindow = new MyWindow({
             parent: mainWindow,
             // 在父窗口居中创建新窗口
             x: mainWindow.getPosition()[0],
             y: mainWindow.getPosition()[1]
         }, './renderer/add.html')
+
+        addWindow.on('close', () => {
+            addWindow = null
+        })
     })
 
     // 监听选择音乐按钮发送的消息，打开文件选择对话框
@@ -52,6 +52,28 @@ function createWindow() {
     ipcMain.on('import-music-message', (event, musicFilePathList) => {
         const updatedTracks = musicDataStore.addToTracks(musicFilePathList).getTracks()
         mainWindow.webContents.send('render-musicList-message', updatedTracks)
+        // 关闭添加音乐窗口
+        addWindow.close()
+        mainWindow.focus()
+    })
+
+    // 监听删除音乐消息
+    ipcMain.on('delete-music-message', (event, musicId) => {
+        // 弹出对话框确认是否关闭
+        dialog.showMessageBox({
+            type: 'question',
+            title: '确认删除',
+            message: '你确定要删除选择的音乐吗？',
+            buttons: ['是', '否'],
+            defaultId: 0,
+            cancelId: 1,
+            noLink: true,
+        }).then(({response}) => {
+            if (response === 0) {
+                const updatedMusicList = musicDataStore.deleteTrack(musicId).getTracks()
+                mainWindow.webContents.send('render-musicList-message', updatedMusicList)
+            }
+        });
     })
 }
 

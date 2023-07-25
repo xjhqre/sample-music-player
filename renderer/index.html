@@ -14,8 +14,18 @@
     <div class="d-grid gap-2">
         <button id="open-add-music-window" class="btn btn-primary mt-4 mb-4" type="button">添加歌曲到曲库</button>
     </div>
+    <!-- 音乐列表 -->
     <div id="musicList" class="mb-4">
+    </div>
+</div>
 
+<!-- 进度条 -->
+<div id="statusBar" class="fixed-bottom sticky-bottom">
+    <hr/>
+    <div class="row me-5 ms-5" id="player-status">
+    </div>
+    <div id="processBarWrapper" class=" progress me-5 ms-5" style="height: 5px;">
+        <div id="processBar" class="progress-bar bg-danger" style="width: 0"></div>
     </div>
 </div>
 
@@ -23,3 +33,25 @@
 </script>
 </body>
 </html>
+<style>
+    #statusBar {
+        height: 70px;
+        background: white;
+    }
+
+    /*单行隐藏显示的样式设定*/
+    .maxlengthlimit {
+        width: 80%; /*设置隐藏显示的最大宽度*/
+        white-space: nowrap; /* 设置文字在一行显示，不能换行 */
+        overflow: hidden; /* 文字长度超出限定宽度，则隐藏超出的内容 */
+        text-overflow: ellipsis; /* 规定当文本溢出时，显示省略符号来代表被省略的文本 */
+    }
+
+    #processBarWrapper {
+        position: fixed;
+        right: 0;
+        bottom: 10px;
+        left: 0;
+        z-index: 1030
+    }
+</style>

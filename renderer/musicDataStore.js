@@ -10,7 +10,7 @@ class DataStore extends Store {
     }
 
     // 保存音乐信息
-    saveTracks() {
+    _saveTracks() {
         this.set('tracks', this.tracks)
         return this
     }
@@ -20,6 +20,7 @@ class DataStore extends Store {
         return this.get('tracks') || []
     }
 
+    // 添加音乐
     addToTracks(pathList) {
         const newTrackList = pathList.map(musicPath => {
             return {
@@ -33,8 +34,14 @@ class DataStore extends Store {
             // 添加不存在 currentTracksPath 里的 track
             return currentTracksPath.indexOf(track.path) < 0
         })
-        this.tracks = [ ...this.getTracks(), ...newTrackList ]
-        return this.saveTracks()
+        this.tracks = [...this.getTracks(), ...newTrackList]
+        return this._saveTracks()
+    }
+
+    // 删除音乐
+    deleteTrack(id) {
+        this.tracks = this.getTracks().filter(track => track.id !== id);
+        return this._saveTracks()
     }
 }
 
