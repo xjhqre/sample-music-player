@@ -14,7 +14,7 @@ ipcRenderer.on('render-musicList-message', (event, musicList) => {
     const musicListDOM = document.querySelector('#musicList')
     const musicListHTML = musicList.reduce((html, music) => {
         html += `<li class="row list-group-item d-flex justify-content-between align-items-center">
-            <div class="col-10 maxlengthlimit">
+            <div class="col-10 namelengthlimit">
                 <i class="fas fa-music me-4 text-secondary"></i>
                 <b style="cursor: default;" title="${music.fileName}">${music.fileName}</b>
             </div>
@@ -64,10 +64,10 @@ document.querySelector('#musicList').addEventListener('click', (event) => {
 musicAudio.addEventListener('loadedmetadata', () => {
     const playerStatusDOM = document.querySelector('#player-status')
     const renderPlayerHTML = `
-    <div class="col-8 font-weight-bold" style="white-space: nowrap; overflow: hidden;text-overflow: ellipsis; ">
+    <div class="col-8 font-weight-bold" style="white-space: nowrap; overflow: hidden;text-overflow: ellipsis;">
         ${currentMusic.fileName}
     </div>
-    <div class="col-4" style="text-align: right">
+    <div class="col-4" style="text-align: right; white-space: nowrap; overflow: hidden;text-overflow: ellipsis;">
         <span id="current-seeker">00:00</span> / ${formatTime(musicAudio.duration)}
     </div>`
     playerStatusDOM.innerHTML = renderPlayerHTML
