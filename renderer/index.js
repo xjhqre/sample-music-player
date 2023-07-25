@@ -90,6 +90,7 @@ musicAudio.addEventListener('timeupdate', () => {
     const processBarDOM = document.querySelector('#processBar')
     seekerDOM.innerHTML = formatTime(musicAudio.currentTime)
     const process = Math.floor(musicAudio.currentTime / musicAudio.duration * 100)
+    console.log(process)
     processBarDOM.style.width = process + '%'
 })
 
